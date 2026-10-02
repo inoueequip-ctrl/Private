@@ -280,12 +280,13 @@ html:not(.js) .loader{display:none}
 .value .label{color:var(--navy);opacity:.75}
 .value__title{margin-top:clamp(24px,4vw,56px);font-family:var(--f-en);font-variation-settings:"wdth" 125;font-weight:800;text-transform:uppercase;font-size:clamp(2.3rem,9.4vw,14rem);line-height:.84;letter-spacing:-.035em;white-space:nowrap}
 .value__title .ln{padding-right:.08em}
-.value__title .ne{height:.62em;margin:.03em 0 .05em;padding:0}
+.value__title .ne{height:.52em;margin:.04em 0 .08em;padding:0}
+.value__tag{margin-top:clamp(18px,2.4vw,34px);font-family:var(--f-en);font-weight:700;letter-spacing:.22em;font-size:clamp(.7rem,.95vw,.9rem);color:rgba(1,26,83,.6)}
 .value__title .ne>span{height:100%}
 .neq{display:inline-block;height:100%}
 .neq svg{height:100%;width:auto;overflow:visible}
-.neq path{fill:none;stroke:currentColor;stroke-width:9;stroke-linecap:butt}
-.neq .slash{stroke:var(--acc)}
+.neq path{fill:none;stroke:currentColor;stroke-width:12;stroke-linecap:butt}
+.neq .bar2{stroke:var(--acc)}.neq .bar1{stroke:var(--acc)}
 .value__jp{margin-top:clamp(28px,4vw,56px);font-size:clamp(1.6rem,3.6vw,3.6rem)}
 
 .value__why{margin-top:clamp(70px,10vw,170px);display:grid;grid-template-columns:1fr 1fr;gap:clamp(36px,8vw,160px);padding-top:clamp(28px,3vw,48px);border-top:1px solid var(--line-d);align-items:start}
