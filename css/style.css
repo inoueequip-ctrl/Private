@@ -281,7 +281,6 @@ html:not(.js) .loader{display:none}
 .value__title{margin-top:clamp(24px,4vw,56px);font-family:var(--f-en);font-variation-settings:"wdth" 125;font-weight:800;text-transform:uppercase;font-size:clamp(2.3rem,9.4vw,14rem);line-height:.84;letter-spacing:-.035em;white-space:nowrap}
 .value__title .ln{padding-right:.08em}
 .value__title .ne{height:.52em;margin:.04em 0 .08em;padding:0}
-.value__tag{margin-top:clamp(18px,2.4vw,34px);font-family:var(--f-en);font-weight:700;letter-spacing:.22em;font-size:clamp(.7rem,.95vw,.9rem);color:rgba(1,26,83,.6)}
 .value__title .ne>span{height:100%}
 .neq{display:inline-block;height:100%}
 .neq svg{height:100%;width:auto;overflow:visible}
