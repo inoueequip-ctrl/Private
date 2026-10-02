@@ -365,9 +365,8 @@
     const paths = $$('path', neq);
     paths.forEach((p) => { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
     gsap.timeline({ scrollTrigger: { trigger: neq, start: 'top 82%', once: true } })
-      .to(paths[0], { strokeDashoffset: 0, duration: 0.9, ease: 'power3.out' })
-      .to(paths[1], { strokeDashoffset: 0, duration: 0.9, ease: 'power3.out' }, 0.12)
-      .to(paths[2], { strokeDashoffset: 0, duration: 0.7, ease: 'power3.inOut' }, 0.7);
+      .to(paths[0], { strokeDashoffset: 0, duration: 0.8, ease: 'power3.out' })
+      .to(paths[1], { strokeDashoffset: 0, duration: 0.8, ease: 'power3.out' }, 0.15);
 
     // value: cost-shift diagram
     const q = $$('#barK .seg.q');
