@@ -440,6 +440,7 @@ html:not(.js) .loader{display:none}
 .ftr__lic{font-size:.82rem;color:var(--silver);letter-spacing:.06em}
 .ftr__top{font-family:var(--f-en);font-weight:700;letter-spacing:.2em;font-size:.74rem;text-transform:uppercase}
 .ftr__copy{text-align:center;margin-top:34px;font-family:var(--f-en);font-size:.68rem;letter-spacing:.2em;color:rgba(255,255,255,.4)}
+.ftr__copy span{white-space:nowrap}
 
 /* ---------- cursor ---------- */
 .cursor{position:fixed;left:0;top:0;z-index:1500;pointer-events:none;display:none;color:#fff}
