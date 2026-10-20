@@ -23,6 +23,16 @@
     setTimeout(() => $$('.sub-hero__title').forEach((el) => el.classList.add('is-in')), 150);
   }
 
+  // contract-flow tabs (used on narrow screens; all four columns show side by side on wide ones)
+  const tabs = $$('.ftab');
+  if (tabs.length) {
+    const cols = $$('.fcol');
+    tabs.forEach((t) => t.addEventListener('click', () => {
+      tabs.forEach((x) => x.classList.toggle('is-on', x === t));
+      cols.forEach((c) => c.classList.toggle('is-on', c.dataset.c === t.dataset.t));
+    }));
+  }
+
   // header: hide on scroll down, dark text over light sections
   let last = window.scrollY;
   const light = $$('[data-theme="light"]');
