@@ -378,11 +378,6 @@
     })
       .to('#kFixed', { flexGrow: 20, ease: 'none', duration: 1 }, 0)
       .to(q, { flexGrow: 20, ease: 'none', duration: 1 }, 0);
-    gsap.from('.returns li', {
-      y: 30, opacity: 0, duration: 1, ease: 'expo.out', stagger: 0.1,
-      scrollTrigger: { trigger: '.returns', start: 'top 92%', once: true },
-    });
-
     // footer / contact small touches
     gsap.from('.company__logo', { clipPath: 'inset(0 0 100% 0)', duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: '.company__logo', start: 'top 85%', once: true } });
   };
