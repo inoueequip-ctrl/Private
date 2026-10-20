@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="assets/img/booth.jpg">
+<link rel="preload" as="image" href="assets/img/hero1.jpg">
 <link rel="stylesheet" href="css/style.css">
 <script>document.documentElement.classList.add('js');try{if(sessionStorage.getItem('km-seen'))document.documentElement.classList.add('seen')}catch(e){}</script>
 <script type="application/ld+json">
@@ -101,9 +101,13 @@
 <!-- ============ HERO ============ -->
 <section class="hero" id="hero">
   <div class="hero__media" id="heroMedia">
-    <video class="hero__video" muted loop playsinline preload="auto" poster="assets/img/booth.jpg" data-play="now">
-      <source src="assets/video/booth.mp4" type="video/mp4">
-        <source src="assets/video/booth.webm" type="video/webm">
+    <video class="hero__video is-on" id="hero1" muted playsinline preload="auto" poster="assets/img/hero1.jpg">
+      <source src="assets/video/hero1.mp4" type="video/mp4">
+      <source src="assets/video/hero1.webm" type="video/webm">
+    </video>
+    <video class="hero__video" id="hero2" muted playsinline preload="metadata" poster="assets/img/hero2.jpg">
+      <source src="assets/video/hero2.mp4" type="video/mp4">
+      <source src="assets/video/hero2.webm" type="video/webm">
     </video>
     <div class="hero__shade"></div>
     <div class="hero__glint" id="glint"></div>
@@ -116,7 +120,7 @@
       <span class="line"><span>CAR COATING</span></span>
       <span class="line"><span>STANDARD<em>.</em></span></span>
     </h1>
-    <p class="hero__jp"><span>販売車両は、全車ガラスコーティング施工済み。</span><span>輸入中古車に、最大限の力を。</span></p>
+    <p class="hero__jp"><span>販売車両は、<br class="sp">全車ガラスコーティング施工済み。</span><span>輸入中古車に、最大限の力を。</span></p>
   </div>
 
   <div class="hero__foot">
@@ -158,11 +162,11 @@
         <b>車内清掃</b><span>Interior cleaning</span>
       </li>
       <li class="step">
-        <div class="step__img"><img src="assets/img/foam.jpg" alt="洗車の様子" loading="lazy" width="640" height="360"><i>04</i></div>
+        <div class="step__img"><video muted loop playsinline preload="metadata" poster="assets/img/foamwide.jpg" aria-label="洗車の様子"><source src="assets/video/foamwide.mp4" type="video/mp4"><source src="assets/video/foamwide.webm" type="video/webm"></video><i>04</i></div>
         <b>洗車</b><span>Washing</span>
       </li>
       <li class="step">
-        <div class="step__img"><img src="assets/img/apply.jpg" alt="コーティング施工の様子" loading="lazy" width="640" height="360"><i>05</i></div>
+        <div class="step__img"><video muted loop playsinline preload="metadata" poster="assets/img/coat.jpg" aria-label="コーティング施工の様子"><source src="assets/video/coat.mp4" type="video/mp4"><source src="assets/video/coat.webm" type="video/webm"></video><i>05</i></div>
         <b>コーティング</b><span>Coating</span>
       </li>
     </ol>
@@ -180,9 +184,9 @@
 <section class="coated" id="coated">
   <div class="coated__stage">
     <div class="coated__frame" id="coatedFrame">
-      <video muted loop playsinline preload="metadata" poster="assets/img/wipe.jpg">
-        <source src="assets/video/wipe.mp4" type="video/mp4">
-        <source src="assets/video/wipe.webm" type="video/webm">
+      <video muted loop playsinline preload="metadata" poster="assets/img/wipe2.jpg">
+        <source src="assets/video/wipe2.mp4" type="video/mp4">
+        <source src="assets/video/wipe2.webm" type="video/webm">
       </video>
       <div class="coated__shade" id="coatedShade"></div>
     </div>
@@ -322,12 +326,13 @@
         <div class="pcard__meta"><i>02</i><b>PAINT PREPARATION</b><span>塗装面の下地処理</span></div>
       </article>
       <article class="pcard" data-cursor="scroll">
-        <div class="pcard__media"><video muted loop playsinline preload="metadata" poster="assets/img/apply.jpg"><source src="assets/video/apply.mp4" type="video/mp4">
-        <source src="assets/video/apply.webm" type="video/webm"></video></div>
+        <div class="pcard__media"><video muted loop playsinline preload="metadata" poster="assets/img/coat.jpg"><source src="assets/video/coat.mp4" type="video/mp4">
+        <source src="assets/video/coat.webm" type="video/webm"></video></div>
         <div class="pcard__meta"><i>03</i><b>COATING</b><span>ボディ全体にコーティング施工</span></div>
       </article>
       <article class="pcard pcard--end">
         <div class="pcard__endInner">
+          <video class="pcard__bg" muted loop playsinline preload="metadata" poster="assets/img/gloss2.jpg" aria-hidden="true"><source src="assets/video/gloss2.mp4" type="video/mp4"><source src="assets/video/gloss2.webm" type="video/webm"></video>
           <i>04</i>
           <b>DELIVERY</b>
           <p>納車時の美しさへ。</p>
@@ -399,6 +404,8 @@
     <div class="shop" data-fade>
       <figure><img src="assets/img/shop-cabin.jpg" width="1400" height="1050" alt="KOTAKI MOTORS 店舗事務所の外観" loading="lazy"></figure>
       <figure><img src="assets/img/shop-sign.jpg" width="1400" height="1050" alt="KOTAKI MOTORS の看板と展示車両" loading="lazy"></figure>
+      <figure class="shop__v"><video muted loop playsinline preload="metadata" poster="assets/img/yard.jpg" aria-label="展示場の様子"><source src="assets/video/yard.mp4" type="video/mp4"><source src="assets/video/yard.webm" type="video/webm"></video></figure>
+      <figure class="shop__v"><video muted loop playsinline preload="metadata" poster="assets/img/yard3.jpg" aria-label="展示場と事務所"><source src="assets/video/yard3.mp4" type="video/mp4"><source src="assets/video/yard3.webm" type="video/webm"></video></figure>
     </div>
 
     <div class="map" data-fade>
