@@ -529,7 +529,8 @@
     try { sessionStorage.setItem('km-seen', '1'); } catch (e) {}
     if (lenis) lenis.start();
     if (!reduce) heroIn();
-    startHeroSequence();
+    // let the loader curtain clear before clip 1 (the shop sign) starts moving
+    setTimeout(startHeroSequence, seen ? 350 : 650);
   };
   runLoader().then(start);
 })();
