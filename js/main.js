@@ -69,7 +69,8 @@
   /* ------------------------------------------------------------
      Videos: play only while visible
   ------------------------------------------------------------ */
-  const videos = $$('video');
+  const heroVideos = $$('.hero__video');
+  const videos = $$('video').filter((v) => !v.classList.contains('hero__video'));
   videos.forEach((v) => { v.muted = true; v.setAttribute('muted', ''); v.playsInline = true; });
   const vio = new IntersectionObserver((entries) => {
     entries.forEach((e) => {
@@ -83,7 +84,7 @@
   /* ------------------------------------------------------------
      Loader
   ------------------------------------------------------------ */
-  const heroVideo = $('.hero__video');
+  const heroVideo = heroVideos[0];
   const ready = Promise.race([
     Promise.all([
       document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve(),
@@ -178,6 +179,7 @@
     onUpdate: (self) => {
       $('#progress').style.transform = `scaleX(${self.progress})`;
       const y = self.scroll();
+      hdr.classList.toggle('is-scrolled', y > 60);
       if (menuOpen) return;
       if (y > 240 && self.direction === 1) hdr.classList.add('is-hidden');
       else if (self.direction === -1 || y <= 240) hdr.classList.remove('is-hidden');
@@ -378,11 +380,6 @@
     })
       .to('#kFixed', { flexGrow: 20, ease: 'none', duration: 1 }, 0)
       .to(q, { flexGrow: 20, ease: 'none', duration: 1 }, 0);
-    gsap.from('.returns li', {
-      y: 30, opacity: 0, duration: 1, ease: 'expo.out', stagger: 0.1,
-      scrollTrigger: { trigger: '.returns', start: 'top 92%', once: true },
-    });
-
     // footer / contact small touches
     gsap.from('.company__logo', { clipPath: 'inset(0 0 100% 0)', duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: '.company__logo', start: 'top 85%', once: true } });
   };
@@ -480,6 +477,34 @@
   });
 
   /* ------------------------------------------------------------
+     Hero: clip 1 -> clip 2 -> clip 1 ... with cross-fades
+  ------------------------------------------------------------ */
+  const startHeroSequence = () => {
+    if (!heroVideos.length || reduce) return;
+    let cur = 0;
+    let visible = true;
+    const play = (v) => { const p = v.play(); if (p && p.catch) p.catch(() => {}); };
+    const next = () => {
+      const from = heroVideos[cur];
+      cur = (cur + 1) % heroVideos.length;
+      const to = heroVideos[cur];
+      to.currentTime = 0;
+      if (visible) play(to);
+      to.classList.add('is-on');
+      setTimeout(() => { from.classList.remove('is-on'); from.pause(); }, 1200);
+    };
+    heroVideos.forEach((v) => v.addEventListener('ended', () => { if (v === heroVideos[cur]) next(); }));
+    heroVideos.forEach((v) => { v.preload = 'auto'; });
+    play(heroVideos[0]);
+    // pause while the hero is off-screen
+    new IntersectionObserver((es) => {
+      visible = es[0].isIntersecting;
+      const v = heroVideos[cur];
+      visible ? play(v) : v.pause();
+    }, { threshold: 0.05 }).observe(heroEl);
+  };
+
+  /* ------------------------------------------------------------
      Boot
   ------------------------------------------------------------ */
   if (!reduce) prepHero();
@@ -504,7 +529,7 @@
     try { sessionStorage.setItem('km-seen', '1'); } catch (e) {}
     if (lenis) lenis.start();
     if (!reduce) heroIn();
-    if (heroVideo) { const p = heroVideo.play(); if (p && p.catch) p.catch(() => {}); }
+    startHeroSequence();
   };
   runLoader().then(start);
 })();
