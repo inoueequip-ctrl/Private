@@ -179,6 +179,7 @@
     onUpdate: (self) => {
       $('#progress').style.transform = `scaleX(${self.progress})`;
       const y = self.scroll();
+      hdr.classList.toggle('is-scrolled', y > 60);
       if (menuOpen) return;
       if (y > 240 && self.direction === 1) hdr.classList.add('is-hidden');
       else if (self.direction === -1 || y <= 240) hdr.classList.remove('is-hidden');

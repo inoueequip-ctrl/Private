@@ -38,6 +38,7 @@
   const light = $$('[data-theme="light"]');
   const onScroll = () => {
     const y = window.scrollY;
+    hdr.classList.toggle('is-scrolled', y > 60);
     hdr.classList.toggle('is-hidden', y > 240 && y > last);
     last = y;
     const on = light.some((s) => { const r = s.getBoundingClientRect(); return r.top < 46 && r.bottom > 46; });
