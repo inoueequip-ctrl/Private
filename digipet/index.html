@@ -21,6 +21,12 @@ h2{font-size:1rem;margin:0 0 8px;color:var(--accent)}
 canvas{image-rendering:pixelated;width:192px;height:192px;animation:bob 1.2s steps(2) infinite}
 .sleepy canvas{animation:none;opacity:.6}
 @keyframes bob{50%{transform:translateY(-6px)}}
+.flash{animation:flash 1.6s ease-out}
+@keyframes flash{0%{filter:brightness(1)}30%{filter:brightness(6) saturate(0)}100%{filter:brightness(1)}}
+.omega canvas{filter:drop-shadow(0 0 8px #ffd24e)}
+li.ok{color:var(--accent)}
+ul.cond{list-style:none;padding:0;margin:0 0 10px;font-size:.9rem}
+button:disabled{opacity:.4;cursor:not-allowed}
 .say{min-height:3em;font-size:.95rem;color:#bff7ea}
 .bar{height:10px;background:#0c1330;border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:2px 0 8px}
 .bar i{display:block;height:100%;background:var(--accent);transition:width .4s}
@@ -59,8 +65,15 @@ input[type=text],input[type=password]{width:100%;padding:10px;border-radius:10px
   </section>
 
   <section>
+    <h2>⚡ ジョグレス進化</h2>
+    <ul class="cond" id="cond"></ul>
+    <button class="primary" id="omega" disabled>⚡ ジョグレス進化!</button>
+    <p class="note" id="omegaNote"></p>
+  </section>
+
+  <section>
     <h2>① きょうのミッション</h2>
-    <p class="note">本当にやったことだけチェック。1つ +10XP(毎日リセット)。</p>
+    <p class="note">本当にやったことだけチェック。1つ +10XP(毎日リセット)。1日3つ以上で「達成の日」になるよ。</p>
     <div id="quests"></div>
   </section>
 
@@ -91,27 +104,31 @@ const SPRITES = [
   ["....oooo....","...obbbbo...","..obbwbbbo..","..obwbbbbo..","..obbbbbbo..","..obbbwbbo..","..obbbbbbo..","...obbbbo...","....oooo...."],
   ["............","...oooooo...","..obbbbbbo..",".obbbbbbbbo.",".obbebbebbo.",".obbbbbbbbo.",".obbbmmbbbo.","..obbbbbbo..","...oo..oo..."],
   [".h........h.",".hh......hh.",".ohbbbbbbho.","obbbbbbbbbbo","obbebbbbebbo","obbbbbbbbbbo","obbbbmmbbbbo",".obbbbbbbbo.",".obb.oo.bbo.","..oo....oo.."],
-  ["..h......h..",".hhh....hhh.",".ohhbbbbhho.","obbbbbbbbbbo","obbebbbbebbo","obbbbbbbbbbo","abbbbmmbbbba","aabbbbbbbbaa","aaobbbbbboaa",".aobb..bboa.","..oo....oo.."]
+  ["..h......h..",".hhh....hhh.",".ohhbbbbhho.","obbbbbbbbbbo","obbebbbbebbo","obbbbbbbbbbo","abbbbmmbbbba","aabbbbbbbbaa","aaobbbbbboaa",".aobb..bboa.","..oo....oo.."],
+  ["..h......h..",".hhh....hhh.",".ohhbbbbhho.","obbbbbbbbbbo","obbebbbbebbo","obbbbmmbbbbo","kaabbbbbbaas","kaaobbbbboas","kk.obbbbbo.s",".k.obb.bbo.s","..aoo..ooa.."]
 ];
 const PALETTE = [
   {o:"#12332e",b:"#e8fff9",w:"#ffffff"},
   {o:"#12332e",b:"#4ee1c1",e:"#04201a",m:"#04201a"},
   {o:"#10213f",b:"#5aa9ff",h:"#ffd24e",e:"#04101f",m:"#04101f"},
-  {o:"#2a1040",b:"#8f6bff",h:"#ffd24e",a:"#4ee1c1",e:"#ffffff",m:"#1a0a2a"}
+  {o:"#2a1040",b:"#8f6bff",h:"#ffd24e",a:"#4ee1c1",e:"#ffffff",m:"#1a0a2a"},
+  {o:"#3b2a00",b:"#f2f6ff",h:"#ffd24e",a:"#4ee1c1",e:"#ff4e6a",m:"#3b2a00",k:"#e6ecff",s:"#ffd24e"}
 ];
 const STAGES = [
   {min:0,   name:"データのタマゴ", say:"……(コトコト) ミッションをこなすと生まれるよ"},
   {min:30,  name:"ガードン(幼年期)", say:"ぼく ガードン! いっしょに まもろうね!"},
   {min:120, name:"ガードン(成長期)", say:"おぼえたよ、あやしいリンクの見分け方!"},
-  {min:300, name:"ガードン(完全体)", say:"ネットの世界は ぼくらが まもる!"}
+  {min:300, name:"ガードン(完全体)", say:"ネットの世界は ぼくらが まもる!"},
+  {min:Infinity, name:"オメガガード(ジョグレス体)", say:"すべての力が ひとつに! もう だれにも だまされない!"}
 ];
 
 // ---------- 状態 ----------
 const KEY = "guardon.v1";
 const today = () => new Date().toISOString().slice(0,10);
 function load(){
-  try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s) return s; }catch(e){}
-  return {name:"ガードン", xp:0, food:70, fedAt:Date.now(), day:today(), done:[], pwDay:""};
+  const d = {name:"ガードン", xp:0, food:70, fedAt:Date.now(), day:today(), done:[], pwDay:"", streak:0, lastDay:"", phBest:0, omega:false};
+  try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s) return Object.assign(d, s); }catch(e){}
+  return d;
 }
 let S = load();
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
@@ -121,13 +138,18 @@ function tick(){
   const lost = Math.floor((Date.now()-S.fedAt)/(20*60*1000));
   if(lost>0){ S.food = Math.max(0, S.food-lost); S.fedAt += lost*20*60*1000; }
   if(S.day !== today()){ S.day = today(); S.done = []; }
+  if(S.lastDay && S.lastDay !== today() && S.lastDay !== dayAgo(1)) S.streak = 0;
 }
-const stageOf = xp => { let i=0; STAGES.forEach((s,n)=>{ if(xp>=s.min) i=n; }); return i; };
+function dayAgo(n){ const d = new Date(); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10); }
+const stageOf = xp => { let i=0; STAGES.slice(0,4).forEach((s,n)=>{ if(xp>=s.min) i=n; }); return i; };
+const curStage = () => S.omega ? 4 : stageOf(S.xp);
+const GOAL_DAYS = 7, GOAL_PH = 10;
+const canOmega = () => !S.omega && stageOf(S.xp)===3 && S.streak>=GOAL_DAYS && S.phBest>=GOAL_PH;
 
 // ---------- 描画 ----------
 const cv = document.getElementById("pet"), ctx = cv.getContext("2d");
 function draw(){
-  const st = stageOf(S.xp), sp = SPRITES[st], pal = PALETTE[st];
+  const st = curStage(), sp = SPRITES[st], pal = PALETTE[st];
   ctx.clearRect(0,0,12,12);
   const oy = 12 - sp.length;
   sp.forEach((row,y)=>[...row].forEach((c,x)=>{
@@ -140,20 +162,38 @@ let sayTimer;
 function say(t){ $("say").textContent = t; clearTimeout(sayTimer); }
 function render(){
   tick();
-  const st = stageOf(S.xp), next = STAGES[st+1];
+  const st = curStage(), next = st<3 ? STAGES[st+1] : null;
   $("nameLine").textContent = (st===0 ? "" : S.name+" / ") + STAGES[st].name;
   $("xpLine").textContent = next ? `XP ${S.xp} / ${next.min}` : `XP ${S.xp} (MAX)`;
   const base = STAGES[st].min;
   $("xpBar").style.width = (next ? (S.xp-base)/(next.min-base)*100 : 100) + "%";
+  $("screen").classList.toggle("omega", S.omega);
+  renderOmega();
   $("foodTxt").textContent = S.food + " / 100";
   $("foodBar").style.width = S.food + "%";
   $("screen").classList.toggle("sleepy", S.food===0);
   draw(); save();
 }
+function renderOmega(){
+  const row = (ok,t) => `<li class="${ok?"ok":""}">${ok?"✅":"⬜"} ${t}</li>`;
+  $("cond").innerHTML =
+    row(stageOf(S.xp)===3, "完全体まで育てる(XP 300)") +
+    row(S.streak>=GOAL_DAYS, `ミッション達成を${GOAL_DAYS}日連続(いま ${Math.min(S.streak,GOAL_DAYS)}/${GOAL_DAYS}日)`) +
+    row(S.phBest>=GOAL_PH, `フィッシングバトル ${GOAL_PH}連続正解(ベスト ${Math.min(S.phBest,GOAL_PH)}/${GOAL_PH})`);
+  $("omega").disabled = !canOmega();
+  $("omega").style.display = S.omega ? "none" : "";
+  $("omegaNote").textContent = S.omega ? "🌟 ジョグレス進化ずみ! きみは最強のパートナーだ。" : "3つそろうと進化できるよ。1日あきると連続日数はリセット。";
+}
+$("omega").onclick = () => {
+  if(!canOmega()) return;
+  const sc = $("screen"); sc.classList.add("flash");
+  setTimeout(() => { S.omega = true; render(); say(`⚡ ジョグレス進化! ${STAGES[4].name} ! ${STAGES[4].say}`); }, 500);
+  setTimeout(() => sc.classList.remove("flash"), 1700);
+};
 function gain(n, msg){
-  const before = stageOf(S.xp);
+  const before = curStage();
   S.xp += n;
-  const after = stageOf(S.xp);
+  const after = curStage();
   render();
   if(after>before) say(`✨ しんか! ${STAGES[after].name} になった! ${STAGES[after].say}`);
   else if(msg) say(msg);
@@ -179,13 +219,19 @@ const QUESTS = [
   "あやしいメール/SMSのリンクを開かなかった(公式アプリ・ブックマークから開いた)",
   "大事なデータのバックアップを確認した"
 ];
+function markDay(){
+  if(S.done.length>=3 && S.lastDay!==today()){
+    S.streak = (S.lastDay===dayAgo(1)) ? S.streak+1 : 1;
+    S.lastDay = today();
+  }
+}
 function renderQuests(){
   const box = $("quests"); box.innerHTML = "";
   QUESTS.forEach((q,i)=>{
     const l = document.createElement("label"); l.className = "q";
     const c = document.createElement("input"); c.type = "checkbox";
     c.checked = S.done.includes(i); c.disabled = c.checked;
-    c.onchange = () => { if(c.checked && !S.done.includes(i)){ S.done.push(i); c.disabled = true; gain(10, "えらい! +10XP。ひとつ安全になったよ!"); } };
+    c.onchange = () => { if(c.checked && !S.done.includes(i)){ S.done.push(i); c.disabled = true; markDay(); gain(10, "えらい! +10XP。ひとつ安全になったよ!"); } };
     l.append(c, document.createTextNode(q)); box.append(l);
   });
 }
@@ -233,7 +279,7 @@ function nextPh(){ ph = PH[Math.floor(Math.random()*PH.length)]; $("phMsg").text
 function answer(sayBad){
   if(!ph) return;
   const ok = sayBad === ph.bad;
-  if(ok){ streak++; $("phRes").innerHTML = `<span class="good">⭕ せいかい!</span> ${ph.why}`; gain(5); say(streak>=3 ? `${streak}れんぞく! みやぶる力がついてきた!` : "いいカン! +5XP"); }
+  if(ok){ streak++; S.phBest = Math.max(S.phBest, streak); $("phRes").innerHTML = `<span class="good">⭕ せいかい!</span> ${ph.why}`; gain(5); say(streak>=3 ? `${streak}れんぞく! みやぶる力がついてきた!` : "いいカン! +5XP"); }
   else { streak = 0; $("phRes").innerHTML = `<span class="bad">❌ おしい!</span> ${ph.why}`; say("だいじょうぶ、ここで覚えれば本番で守れるよ!"); }
   nextPh();
 }
@@ -242,7 +288,7 @@ $("phBad").onclick = () => answer(true);
 
 // ---------- 起動 ----------
 renderQuests(); nextPh(); render();
-say(STAGES[stageOf(S.xp)].say);
+say(STAGES[curStage()].say);
 setInterval(render, 60*1000);
 </script>
 </body>
