@@ -138,7 +138,12 @@ function load(){
   return d;
 }
 let S = load();
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function save(){
+  const j = JSON.stringify(S);
+  try{ localStorage.setItem(KEY, j); }catch(e){}
+  // Androidアプリ版: ウィジェットに状態を渡す(Web版では何もしない)
+  try{ if(window.GuardonBridge) window.GuardonBridge.save(j); }catch(e){}
+}
 
 function tick(){
   // 20分ごとに ごはん -1
