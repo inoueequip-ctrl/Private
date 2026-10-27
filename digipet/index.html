@@ -133,8 +133,14 @@ const STAGES = [
 const KEY = "guardon.v1";
 const today = () => new Date().toISOString().slice(0,10);
 function load(){
-  const d = {name:"ガードン", xp:0, food:70, fedAt:Date.now(), day:today(), done:[], pwDay:"", streak:0, lastDay:"", phBest:0, omega:false};
+  // Androidアプリ版: ウィジェットで変わった状態を優先して取り込む
+  try{ if(window.GuardonBridge){ const r = window.GuardonBridge.load(); if(r) return Object.assign(defaults(), JSON.parse(r)); } }catch(e){}
+  const d = defaults();
   try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s) return Object.assign(d, s); }catch(e){}
+  return d;
+}
+function defaults(){
+  const d = {name:"ガードン", xp:0, food:70, fedAt:Date.now(), day:today(), done:[], pwDay:"", streak:0, lastDay:"", phBest:0, omega:false};
   return d;
 }
 let S = load();
@@ -302,6 +308,7 @@ $("phBad").onclick = () => answer(true);
 renderQuests(); nextPh(); render();
 say(STAGES[curStage()].say);
 setInterval(render, 60*1000);
+window.guardonReload = () => { S = load(); renderQuests(); render(); };   // アプリ復帰時にウィジェットの変更を反映
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>

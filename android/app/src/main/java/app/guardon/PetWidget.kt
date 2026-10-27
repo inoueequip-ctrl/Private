@@ -10,11 +10,21 @@ import android.widget.RemoteViews
 
 class PetWidget : AppWidgetProvider() {
 
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+        if (intent.action == ACTION_FEED) {
+            Pet.feed(context)
+            refresh(context)
+        }
+    }
+
     override fun onUpdate(context: Context, manager: AppWidgetManager, appWidgetIds: IntArray) {
         appWidgetIds.forEach { manager.updateAppWidget(it, buildViews(context)) }
     }
 
     companion object {
+        private const val ACTION_FEED = "app.guardon.FEED"
+
         /** アプリ側で状態が変わったときにウィジェットを更新する */
         fun refresh(context: Context) {
             val manager = AppWidgetManager.getInstance(context)
@@ -43,6 +53,11 @@ class PetWidget : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             views.setOnClickPendingIntent(R.id.widget_root, open)
+            val feed = PendingIntent.getBroadcast(
+                context, 1, Intent(context, PetWidget::class.java).setAction(ACTION_FEED),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.feed_button, feed)
             return views
         }
     }

@@ -41,8 +41,43 @@ object Pet {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY_STATE, json).apply()
     }
 
+    fun loadRaw(context: Context): String? =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_STATE, null)
+
+    /** ウィジェットからのごはん。状態はWeb版と同じJSONに書き戻す(アプリ起動時に反映される) */
+    fun feed(context: Context, now: Long = System.currentTimeMillis()): Boolean {
+        val raw = loadRaw(context) ?: return false
+        return try {
+            val o = JSONObject(raw)
+            val lost = ((now - o.optLong("fedAt", now)) / FOOD_STEP_MS).toInt().coerceAtLeast(0)
+            val food = (o.optInt("food", 70) - lost).coerceIn(0, 100)
+            if (food >= 100) return false
+            o.put("food", (food + 20).coerceAtMost(100))
+            o.put("fedAt", now)
+            o.put("xp", o.optInt("xp", 0) + 1)
+            saveRaw(context, o.toString())
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /** 通知用: 今日のミッション達成数と連続日数 */
+    data class Daily(val doneToday: Int, val streak: Int)
+
+    fun daily(context: Context, todayIso: String): Daily? {
+        val raw = loadRaw(context) ?: return null
+        return try {
+            val o = JSONObject(raw)
+            val done = if (o.optString("day") == todayIso) o.optJSONArray("done")?.length() ?: 0 else 0
+            Daily(done, o.optInt("streak", 0))
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     fun load(context: Context, now: Long = System.currentTimeMillis()): State? {
-        val raw = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_STATE, null) ?: return null
+        val raw = loadRaw(context) ?: return null
         return try {
             val o = JSONObject(raw)
             val xp = o.optInt("xp", 0)
