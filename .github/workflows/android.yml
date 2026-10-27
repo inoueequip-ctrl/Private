@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write   # 最新APKをリリースページに置くため
 
 jobs:
   build:
@@ -34,3 +34,15 @@ jobs:
         with:
           name: guardon-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+      # main に入ったときだけ、誰でもダウンロードできるリリースページへ最新APKを置く
+      - name: Publish APK to the "latest" release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk guardon.apk
+          gh release view latest >/dev/null 2>&1 || gh release create latest \
+            --target "$GITHUB_SHA" --title "ガードン 最新版 (Android)" \
+            --notes "guardon.apk をスマホで開いてインストール。ホーム画面を長押し→ウィジェット→ガードン。"
+          gh release upload latest guardon.apk --clobber
