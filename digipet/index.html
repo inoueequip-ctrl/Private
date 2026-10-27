@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b1020">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ガードン">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>ガードン - デジタルワールドの相棒</title>
+<style>
+:root{
+  --bg:#0b1020; --panel:#141b34; --line:#27325f; --text:#e6ecff; --sub:#8f9bc7;
+  --accent:#4ee1c1; --warn:#ffb84e; --bad:#ff6b8a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;line-height:1.6}
+main{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:1.2rem;margin:4px 0 12px;letter-spacing:.05em}
+section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+h2{font-size:1rem;margin:0 0 8px;color:var(--accent)}
+.screen{background:#0a1a1a;border:2px solid #1d4d46;border-radius:12px;text-align:center;padding:12px;
+  background-image:linear-gradient(rgba(78,225,193,.06) 1px,transparent 1px);background-size:100% 6px}
+canvas{image-rendering:pixelated;width:192px;height:192px;animation:bob 1.2s steps(2) infinite}
+.sleepy canvas{animation:none;opacity:.6}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.flash{animation:flash 1.6s ease-out}
+@keyframes flash{0%{filter:brightness(1)}30%{filter:brightness(6) saturate(0)}100%{filter:brightness(1)}}
+.omega canvas{filter:drop-shadow(0 0 8px #ffd24e)}
+li.ok{color:var(--accent)}
+ul.cond{list-style:none;padding:0;margin:0 0 10px;font-size:.9rem}
+button:disabled{opacity:.4;cursor:not-allowed}
+.say{min-height:3em;font-size:.95rem;color:#bff7ea}
+.bar{height:10px;background:#0c1330;border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:2px 0 8px}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .4s}
+.bar.food i{background:var(--warn)}
+.meta{display:flex;justify-content:space-between;font-size:.85rem;color:var(--sub)}
+button{background:#1d2850;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:.95rem;cursor:pointer}
+button:hover{background:#27356b}
+button.primary{background:var(--accent);color:#04201a;border-color:var(--accent);font-weight:700}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+label.q{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line);cursor:pointer}
+label.q:first-of-type{border-top:0}
+label.q input{margin-top:5px;width:18px;height:18px;accent-color:var(--accent)}
+input[type=text],input[type=password]{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:#0c1330;color:var(--text);font-size:1rem}
+.note{font-size:.8rem;color:var(--sub)}
+.msg{background:#0c1330;border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0;font-size:.9rem;white-space:pre-wrap;word-break:break-all}
+.good{color:var(--accent)} .bad{color:var(--bad)}
+</style>
+</head>
+<body>
+<main>
+  <h1>🛡️ デジタルワールドの相棒</h1>
+
+  <section>
+    <div class="screen" id="screen">
+      <canvas id="pet" width="12" height="12"></canvas>
+      <div class="say" id="say"></div>
+    </div>
+    <div class="meta" style="margin-top:10px"><span id="nameLine"></span><span id="xpLine"></span></div>
+    <div class="bar"><i id="xpBar" style="width:0"></i></div>
+    <div class="meta"><span>ごはん(データ)</span><span id="foodTxt"></span></div>
+    <div class="bar food"><i id="foodBar" style="width:0"></i></div>
+    <div class="row">
+      <button class="primary" id="feed">🍙 ごはんをあげる</button>
+      <button id="rename">✏️ なまえ</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>⚡ ジョグレス進化</h2>
+    <ul class="cond" id="cond"></ul>
+    <button class="primary" id="omega" disabled>⚡ ジョグレス進化!</button>
+    <p class="note" id="omegaNote"></p>
+  </section>
+
+  <section>
+    <h2>① きょうのミッション</h2>
+    <p class="note">本当にやったことだけチェック。1つ +10XP(毎日リセット)。1日3つ以上で「達成の日」になるよ。</p>
+    <div id="quests"></div>
+  </section>
+
+  <section>
+    <h2>② パワーチェック(パスワード診断)</h2>
+    <input type="password" id="pw" placeholder="練習用の文字列を入力" autocomplete="off">
+    <div class="msg" id="pwOut">入力すると強さを診断するよ。</div>
+    <p class="note">⚠️ 本物のパスワードは入れないでね。入力はこの端末の中だけで処理され、どこにも送信・保存されません。</p>
+  </section>
+
+  <section>
+    <h2>③ フィッシングバトル</h2>
+    <div class="msg" id="phMsg"></div>
+    <div class="row">
+      <button id="phSafe">✅ ふつうのメッセージ</button>
+      <button id="phBad">⚠️ あやしい!</button>
+    </div>
+    <div class="say" id="phRes" style="margin-top:8px"></div>
+  </section>
+
+  <p class="note">この相棒は“防犯意識を育てる”ためのゲームです。ウイルス対策ソフトの代わりにはなりません。OS・アプリの更新、2段階認証、パスワード管理アプリ、バックアップを習慣にしよう。データはこのブラウザ内(localStorage)にだけ保存されます。</p>
+</main>
+
+<script>
+// ---------- ドット絵 ----------
+// . 透明 / o 輪郭 / b 体 / h 角・耳 / e 目 / m 口 / a 羽 / w ハイライト
+const SPRITES = [
+  ["....oooo....","...obbbbo...","..obbwbbbo..","..obwbbbbo..","..obbbbbbo..","..obbbwbbo..","..obbbbbbo..","...obbbbo...","....oooo...."],
+  ["............","...oooooo...","..obbbbbbo..",".obbbbbbbbo.",".obbebbebbo.",".obbbbbbbbo.",".obbbmmbbbo.","..obbbbbbo..","...oo..oo..."],
+  [".h........h.",".hh......hh.",".ohbbbbbbho.","obbbbbbbbbbo","obbebbbbebbo","obbbbbbbbbbo","obbbbmmbbbbo",".obbbbbbbbo.",".obb.oo.bbo.","..oo....oo.."],
+  ["..h......h..",".hhh....hhh.",".ohhbbbbhho.","obbbbbbbbbbo","obbebbbbebbo","obbbbbbbbbbo","abbbbmmbbbba","aabbbbbbbbaa","aaobbbbbboaa",".aobb..bboa.","..oo....oo.."],
+  ["..h......h..",".hhh....hhh.",".ohhbbbbhho.","obbbbbbbbbbo","obbebbbbebbo","obbbbmmbbbbo","kaabbbbbbaas","kaaobbbbboas","kk.obbbbbo.s",".k.obb.bbo.s","..aoo..ooa.."]
+];
+const PALETTE = [
+  {o:"#12332e",b:"#e8fff9",w:"#ffffff"},
+  {o:"#12332e",b:"#4ee1c1",e:"#04201a",m:"#04201a"},
+  {o:"#10213f",b:"#5aa9ff",h:"#ffd24e",e:"#04101f",m:"#04101f"},
+  {o:"#2a1040",b:"#8f6bff",h:"#ffd24e",a:"#4ee1c1",e:"#ffffff",m:"#1a0a2a"},
+  {o:"#3b2a00",b:"#f2f6ff",h:"#ffd24e",a:"#4ee1c1",e:"#ff4e6a",m:"#3b2a00",k:"#e6ecff",s:"#ffd24e"}
+];
+const STAGES = [
+  {min:0,   name:"データのタマゴ", say:"……(コトコト) ミッションをこなすと生まれるよ"},
+  {min:30,  name:"ガードン(幼年期)", say:"ぼく ガードン! いっしょに まもろうね!"},
+  {min:120, name:"ガードン(成長期)", say:"おぼえたよ、あやしいリンクの見分け方!"},
+  {min:300, name:"ガードン(完全体)", say:"ネットの世界は ぼくらが まもる!"},
+  {min:Infinity, name:"オメガガード(ジョグレス体)", say:"すべての力が ひとつに! もう だれにも だまされない!"}
+];
+
+// ---------- 状態 ----------
+const KEY = "guardon.v1";
+const today = () => new Date().toISOString().slice(0,10);
+function load(){
+  // Androidアプリ版: ウィジェットで変わった状態を優先して取り込む
+  try{ if(window.GuardonBridge){ const r = window.GuardonBridge.load(); if(r) return Object.assign(defaults(), JSON.parse(r)); } }catch(e){}
+  const d = defaults();
+  try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s) return Object.assign(d, s); }catch(e){}
+  return d;
+}
+function defaults(){
+  const d = {name:"ガードン", xp:0, food:70, fedAt:Date.now(), day:today(), done:[], pwDay:"", streak:0, lastDay:"", phBest:0, omega:false};
+  return d;
+}
+let S = load();
+function save(){
+  const j = JSON.stringify(S);
+  try{ localStorage.setItem(KEY, j); }catch(e){}
+  // Androidアプリ版: ウィジェットに状態を渡す(Web版では何もしない)
+  try{ if(window.GuardonBridge) window.GuardonBridge.save(j); }catch(e){}
+}
+
+function tick(){
+  // 20分ごとに ごはん -1
+  const lost = Math.floor((Date.now()-S.fedAt)/(20*60*1000));
+  if(lost>0){ S.food = Math.max(0, S.food-lost); S.fedAt += lost*20*60*1000; }
+  if(S.day !== today()){ S.day = today(); S.done = []; }
+  if(S.lastDay && S.lastDay !== today() && S.lastDay !== dayAgo(1)) S.streak = 0;
+}
+function dayAgo(n){ const d = new Date(); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10); }
+const stageOf = xp => { let i=0; STAGES.slice(0,4).forEach((s,n)=>{ if(xp>=s.min) i=n; }); return i; };
+const curStage = () => S.omega ? 4 : stageOf(S.xp);
+const GOAL_DAYS = 7, GOAL_PH = 10;
+const canOmega = () => !S.omega && stageOf(S.xp)===3 && S.streak>=GOAL_DAYS && S.phBest>=GOAL_PH;
+
+// ---------- 描画 ----------
+const cv = document.getElementById("pet"), ctx = cv.getContext("2d");
+function draw(){
+  const st = curStage(), sp = SPRITES[st], pal = PALETTE[st];
+  ctx.clearRect(0,0,12,12);
+  const oy = 12 - sp.length;
+  sp.forEach((row,y)=>[...row].forEach((c,x)=>{
+    if(c==="."||!pal[c]) return;
+    ctx.fillStyle = pal[c]; ctx.fillRect(x,y+oy,1,1);
+  }));
+}
+const $ = id => document.getElementById(id);
+let sayTimer;
+function say(t){ $("say").textContent = t; clearTimeout(sayTimer); }
+function render(){
+  tick();
+  const st = curStage(), next = st<3 ? STAGES[st+1] : null;
+  $("nameLine").textContent = (st===0 ? "" : S.name+" / ") + STAGES[st].name;
+  $("xpLine").textContent = next ? `XP ${S.xp} / ${next.min}` : `XP ${S.xp} (MAX)`;
+  const base = STAGES[st].min;
+  $("xpBar").style.width = (next ? (S.xp-base)/(next.min-base)*100 : 100) + "%";
+  $("screen").classList.toggle("omega", S.omega);
+  renderOmega();
+  $("foodTxt").textContent = S.food + " / 100";
+  $("foodBar").style.width = S.food + "%";
+  $("screen").classList.toggle("sleepy", S.food===0);
+  draw(); save();
+}
+function renderOmega(){
+  const row = (ok,t) => `<li class="${ok?"ok":""}">${ok?"✅":"⬜"} ${t}</li>`;
+  $("cond").innerHTML =
+    row(stageOf(S.xp)===3, "完全体まで育てる(XP 300)") +
+    row(S.streak>=GOAL_DAYS, `ミッション達成を${GOAL_DAYS}日連続(いま ${Math.min(S.streak,GOAL_DAYS)}/${GOAL_DAYS}日)`) +
+    row(S.phBest>=GOAL_PH, `フィッシングバトル ${GOAL_PH}連続正解(ベスト ${Math.min(S.phBest,GOAL_PH)}/${GOAL_PH})`);
+  $("omega").disabled = !canOmega();
+  $("omega").style.display = S.omega ? "none" : "";
+  $("omegaNote").textContent = S.omega ? "🌟 ジョグレス進化ずみ! きみは最強のパートナーだ。" : "3つそろうと進化できるよ。1日あきると連続日数はリセット。";
+}
+$("omega").onclick = () => {
+  if(!canOmega()) return;
+  const sc = $("screen"); sc.classList.add("flash");
+  setTimeout(() => { S.omega = true; render(); say(`⚡ ジョグレス進化! ${STAGES[4].name} ! ${STAGES[4].say}`); }, 500);
+  setTimeout(() => sc.classList.remove("flash"), 1700);
+};
+function gain(n, msg){
+  const before = curStage();
+  S.xp += n;
+  const after = curStage();
+  render();
+  if(after>before) say(`✨ しんか! ${STAGES[after].name} になった! ${STAGES[after].say}`);
+  else if(msg) say(msg);
+}
+
+// ---------- ごはん ----------
+$("feed").onclick = () => {
+  tick();
+  if(S.food>=100){ say("もう おなかいっぱい!"); return; }
+  S.food = Math.min(100, S.food+20); S.fedAt = Date.now();
+  gain(1, "もぐもぐ… ありがとう!");
+};
+$("rename").onclick = () => {
+  const n = prompt("なまえをつけてね", S.name);
+  if(n && n.trim()){ S.name = n.trim().slice(0,12); render(); say(`${S.name}! いいなまえ!`); }
+};
+
+// ---------- ミッション ----------
+const QUESTS = [
+  "2段階認証(2FA)を1つ ONにした / 確認した",
+  "パスワードの使い回しを1つ直した(または管理アプリを使った)",
+  "スマホ・PC・アプリの更新を確認した",
+  "あやしいメール/SMSのリンクを開かなかった(公式アプリ・ブックマークから開いた)",
+  "大事なデータのバックアップを確認した"
+];
+function markDay(){
+  if(S.done.length>=3 && S.lastDay!==today()){
+    S.streak = (S.lastDay===dayAgo(1)) ? S.streak+1 : 1;
+    S.lastDay = today();
+  }
+}
+function renderQuests(){
+  const box = $("quests"); box.innerHTML = "";
+  QUESTS.forEach((q,i)=>{
+    const l = document.createElement("label"); l.className = "q";
+    const c = document.createElement("input"); c.type = "checkbox";
+    c.checked = S.done.includes(i); c.disabled = c.checked;
+    c.onchange = () => { if(c.checked && !S.done.includes(i)){ S.done.push(i); c.disabled = true; markDay(); gain(10, "えらい! +10XP。ひとつ安全になったよ!"); } };
+    l.append(c, document.createTextNode(q)); box.append(l);
+  });
+}
+
+// ---------- パスワード診断 ----------
+const COMMON = ["password","passw0rd","qwerty","123456","111111","abc123","letmein","admin","iloveyou","welcome","login","dragon","monkey","1234","0000","pass","asdf","zxcv"];
+function analyze(p){
+  if(!p) return null;
+  let pool = 0;
+  if(/[a-z]/.test(p)) pool += 26;
+  if(/[A-Z]/.test(p)) pool += 26;
+  if(/[0-9]/.test(p)) pool += 10;
+  if(/[^a-zA-Z0-9]/.test(p)) pool += 33;
+  let bits = p.length * Math.log2(pool||1);
+  const low = p.toLowerCase(), issues = [];
+  if(COMMON.some(w=>low.includes(w))){ bits = Math.min(bits, 20); issues.push("よくある単語・並びが入ってる"); }
+  if(/(.)\1{2,}/.test(p)){ bits -= 10; issues.push("同じ文字が続いてる"); }
+  if(/(0123|1234|2345|3456|4567|5678|6789|abcd|bcde|cdef)/i.test(p)){ bits -= 10; issues.push("連番になってる"); }
+  if(p.length < 12) issues.push("12文字以上にしよう");
+  return {bits: Math.max(0, Math.round(bits)), issues};
+}
+$("pw").oninput = e => {
+  const r = analyze(e.target.value), out = $("pwOut");
+  if(!r){ out.textContent = "入力すると強さを診断するよ。"; return; }
+  const lv = r.bits>=70 ? ["つよい 💪","good"] : r.bits>=45 ? ["ふつう 🙂",""] : ["よわい 😱","bad"];
+  out.innerHTML = `強さ: <b class="${lv[1]}">${lv[0]}</b> (約${r.bits}ビット)` +
+    (r.issues.length ? `<br>・${r.issues.join("<br>・")}` : "") +
+    `<br><span class="note">コツ: 長い+ランダム。サイトごとに別のものを。管理アプリが一番ラク。</span>`;
+  if(r.bits>=70 && S.pwDay!==today()){ S.pwDay = today(); gain(5, "つよいパスワードの作り方、マスターしたね! +5XP"); }
+};
+
+// ---------- フィッシングバトル ----------
+const PH = [
+  {t:"【緊急】お客様のアカウントが停止されます。24時間以内に http://secure-login.example-bank.verify-now.test/ で本人確認をしてください。", bad:true, why:"脅し+期限+ドメインが公式っぽくない(本物の入口は“.”の並び最後のドメインで判断)。"},
+  {t:"荷物をお届けにあがりましたが不在でした。再配達はこちら → http://re-delivery.co-parcel.test/", bad:true, why:"SMSのURLから再配達は典型的な手口。公式アプリや公式サイトから確認しよう。"},
+  {t:"明日の打ち合わせは15時からでお願いします。資料は先日共有したフォルダにあります。", bad:false, why:"リンクも急かしもなく、既知のやり取りの続き。ふつうのメッセージ。"},
+  {t:"あなたのAmazonギフト券 5,000円分が当選しました! 受け取りはこちら ⇒ bit.ly/xxxx", bad:true, why:"身に覚えのない当選+短縮URL。タダより高いものはない!"},
+  {t:"【セキュリティ通知】新しい端末からログインがありました。心当たりがなければ、公式アプリの設定画面からパスワードを変更してください。(このメールにリンクはありません)", bad:false, why:"リンクを踏ませず、公式アプリでの操作を案内している。ただし不安なら自分で公式サイトを開いて確認しよう。"},
+  {t:"社長です。至急お願いがあります。コンビニでギフトカードを購入し、番号を写真で送ってください。会議中のため電話はできません。", bad:true, why:"なりすまし詐欺(BEC)。お金・ギフトカード・電話NGは必ず別の手段で本人確認。"},
+  {t:"ご注文ありがとうございます。注文番号 #48213 は本日発送されました。(お問い合わせは公式サイトのマイページから)", bad:false, why:"ただし身に覚えのない注文なら、リンクではなく公式サイトのマイページで確認。"},
+  {t:"添付の請求書.pdf.exe をご確認ください。至急お支払いをお願いします。", bad:true, why:"“.pdf.exe”は実行ファイル。拡張子を隠されてPDFに見せかけている。絶対に開かない!"}
+];
+let ph = null, streak = 0;
+function nextPh(){ ph = PH[Math.floor(Math.random()*PH.length)]; $("phMsg").textContent = ph.t; }
+function answer(sayBad){
+  if(!ph) return;
+  const ok = sayBad === ph.bad;
+  if(ok){ streak++; S.phBest = Math.max(S.phBest, streak); $("phRes").innerHTML = `<span class="good">⭕ せいかい!</span> ${ph.why}`; gain(5); say(streak>=3 ? `${streak}れんぞく! みやぶる力がついてきた!` : "いいカン! +5XP"); }
+  else { streak = 0; $("phRes").innerHTML = `<span class="bad">❌ おしい!</span> ${ph.why}`; say("だいじょうぶ、ここで覚えれば本番で守れるよ!"); }
+  nextPh();
+}
+$("phSafe").onclick = () => answer(false);
+$("phBad").onclick = () => answer(true);
+
+// ---------- 起動 ----------
+renderQuests(); nextPh(); render();
+say(STAGES[curStage()].say);
+setInterval(render, 60*1000);
+window.guardonReload = () => { S = load(); renderQuests(); render(); };   // アプリ復帰時にウィジェットの変更を反映
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
