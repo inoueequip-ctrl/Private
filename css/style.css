@@ -730,3 +730,10 @@ a.svc__card:hover>video{transform:scale(1.06)}
 .hdr.is-scrolled::before{opacity:1}
 .hdr.is-dark::before{background:linear-gradient(180deg,rgba(239,237,230,.94),rgba(239,237,230,.65) 62%,rgba(239,237,230,0))}
 .menu-open .hdr::before{opacity:0}
+
+/* illustrated step visuals (brand-blue line art) */
+.step__ill{position:absolute;inset:0;width:100%;height:100%;transition:transform 1.4s var(--ease)}
+.step__ill .il{fill:none;stroke:#CFE0FF;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.step:hover .step__ill{transform:scale(1.05)}
+
+.svc__card .svc__links{gap:10px}
