@@ -68,7 +68,7 @@ body::after{
   color:var(--silver);
 }
 .label span{font-weight:800;color:inherit}
-.label span::after{content:"";display:inline-block;width:44px;height:1px;background:currentColor;vertical-align:middle;margin-left:14px;opacity:.6}
+.label::before{content:"";display:inline-block;width:44px;height:1px;background:currentColor;opacity:.6}
 
 .h-jp{font-family:var(--f-jp);font-weight:900;line-height:1.28;letter-spacing:.01em;font-size:clamp(1.9rem,3.8vw,3.9rem)}
 .h-jp.xl{font-size:clamp(2rem,4.1vw,4.4rem)}
@@ -202,7 +202,7 @@ html:not(.js) .loader{display:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ---------- concept ---------- */
-.concept{position:relative;background:var(--deep);padding:clamp(100px,16vw,260px) 0 clamp(80px,11vw,180px)}
+.concept{position:relative;background:var(--deep);padding:clamp(80px,12vw,200px) 0 clamp(80px,11vw,180px)}
 .concept__lead{
   margin-top:clamp(28px,4vw,56px);max-width:19em;
   font-weight:900;font-size:clamp(1.9rem,5vw,5.4rem);line-height:1.38;letter-spacing:.005em;
@@ -355,7 +355,7 @@ html:not(.js) .loader{display:none}
 .btn--solid:hover{background:var(--hi)}
 
 /* ---------- service ---------- */
-.svc{position:relative;background:var(--deep);padding:clamp(90px,12vw,200px) 0 clamp(90px,12vw,200px);border-top:1px solid var(--line)}
+.svc{position:relative;background:var(--deep);padding:clamp(70px,9vw,150px) 0 clamp(20px,3vw,40px)}
 .svc__top{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;margin:clamp(24px,3vw,44px) 0 clamp(36px,5vw,80px)}
 .svc__title{font-family:var(--f-en);font-variation-settings:"wdth" 125;font-weight:800;font-size:clamp(3.4rem,13vw,16rem);line-height:.84;letter-spacing:-.035em;text-transform:uppercase}
 .svc__note{max-width:20em;color:var(--silver);font-weight:500;line-height:1.9;font-size:clamp(.9rem,1.1vw,1.05rem)}
@@ -737,3 +737,19 @@ a.svc__card:hover>video{transform:scale(1.06)}
 .step:hover .step__ill{transform:scale(1.05)}
 
 .svc__card .svc__links{gap:10px}
+
+/* ---- 2026-11 revision ---- */
+.company__side{max-width:360px}
+.company__rep img{aspect-ratio:900/1100;object-fit:cover;object-position:50% 20%}
+@media (max-width:860px){
+  .company__side{max-width:none;align-items:center}
+  .company__rep{max-width:min(78%,320px);margin-inline:auto}
+  .company__rep figcaption{text-align:center}
+}
+/* representative greeting */
+.greet{margin:clamp(28px,4vw,56px) 0 clamp(50px,7vw,110px);padding-bottom:clamp(40px,6vw,90px);border-bottom:1px solid var(--line)}
+.greet__q{margin-top:clamp(18px,2.4vw,32px);font-weight:900;font-size:clamp(1.7rem,3.8vw,3.8rem);line-height:1.4}
+.greet__body{margin-top:clamp(24px,3vw,44px);max-width:46em}
+.greet__body p{line-height:2.2}
+.greet__quote{font-weight:900;color:#fff;font-size:clamp(1.15rem,2vw,1.9rem);line-height:1.8;border-left:3px solid var(--acc);padding-left:1em;margin:1.8em 0!important}
+.greet__sign{margin-top:2.2em!important;font-weight:700;letter-spacing:.14em;color:var(--hi);line-height:1.9}
