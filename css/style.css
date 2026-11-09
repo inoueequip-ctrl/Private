@@ -836,3 +836,7 @@ a.svc__card:hover>video{transform:scale(1.06)}
 .company{padding-top:clamp(70px,9vw,150px)}
 .company .wrap>.label{display:none}
 @media (max-width:860px){.greet__title,.company__title{letter-spacing:.24em}}
+
+/* 代表挨拶 title sits above photo + text, aligned with the 会社概要 title */
+.company .wrap>.greet__title{margin:0 0 clamp(22px,3vw,40px)}
+.greet{margin-top:0}
