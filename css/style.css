@@ -826,3 +826,13 @@ a.svc__card:hover>video{transform:scale(1.06)}
   .coated__title{font-size:clamp(2rem,11vw,3.4rem)}
   .coated__title .b{padding-right:calc(var(--gutter) + 10px)}
 }
+
+/* section titles for the company area (Japanese, no English label) */
+.greet__title,.company__title{font-weight:900;font-size:clamp(1.05rem,1.5vw,1.3rem);letter-spacing:.3em;color:var(--hi);display:flex;align-items:center;gap:16px}
+.greet__title::before,.company__title::before{content:"";width:44px;height:1px;background:currentColor;opacity:.7}
+.greet__title{margin:0 0 clamp(14px,1.8vw,24px)}
+.company__title{margin:0 0 clamp(18px,2.4vw,32px)}
+.greet__q{margin:0;font-weight:900;font-size:clamp(1.7rem,3.4vw,3.4rem);line-height:1.4;text-wrap:balance}
+.company{padding-top:clamp(70px,9vw,150px)}
+.company .wrap>.label{display:none}
+@media (max-width:860px){.greet__title,.company__title{letter-spacing:.24em}}
